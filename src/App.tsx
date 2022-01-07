@@ -5,8 +5,6 @@ import Field from './components/Field';
 import Button from './components/Button';
 import ManipulationPanel from './components/ManipulationPanel';
 
-import './App.css';
-
 const App: React.FC = () => {
   return (
     <div className="App">
