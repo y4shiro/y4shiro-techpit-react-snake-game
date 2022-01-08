@@ -13,14 +13,39 @@ type PositionType = {
 
 const initialPosition: PositionType = { x: 17, y: 17 };
 const initialValues = initFields(35, initialPosition);
+const defaultInterval = 100;
+
+let timer: NodeJS.Timer | undefined = undefined;
+
+const unsubscribe = () => {
+  if (!timer) {
+    return;
+  }
+  clearInterval(timer);
+};
 
 const App: React.FC = () => {
   const [fields, setFields] = useState(initialValues);
   const [position, setPosition] = useState<PositionType>();
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     setPosition(initialPosition);
+
+    // ゲームの中の時間を管理する
+    timer = setInterval(() => {
+      setTick((tick) => tick + 1);
+    }, defaultInterval);
+
+    return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    if (!position) {
+      return;
+    }
+    goUp();
+  }, [tick]);
 
   const goUp = () => {
     if (position) {
@@ -44,9 +69,6 @@ const App: React.FC = () => {
       <main className="main">
         <Field fields={fields} />
       </main>
-      <div style={{ padding: '16px' }}>
-        <button onClick={goUp}>進む</button>
-      </div>
       <footer className="footer">
         <Button />
         <ManipulationPanel />
