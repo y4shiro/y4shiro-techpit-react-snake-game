@@ -6,5 +6,9 @@ export const initFields = (fieldSize: number): string[][] => {
     fields.push(cols);
   }
 
+  // 仮置
+  fields[17][17] = 'snake';
+  fields[17][19] = 'food';
+
   return fields;
 };
