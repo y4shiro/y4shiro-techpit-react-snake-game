@@ -1,4 +1,8 @@
-export const initFields = (fieldSize: number): string[][] => {
+type InitFieldsType = {
+  (fieldSize: number, initialPosition: { x: number; y: number }): string[][];
+};
+
+export const initFields: InitFieldsType = (fieldSize, initialPosition) => {
   const fields: string[][] = [];
 
   for (let i = 0; i < fieldSize; i++) {
@@ -6,9 +10,7 @@ export const initFields = (fieldSize: number): string[][] => {
     fields.push(cols);
   }
 
-  // 仮置
-  fields[17][17] = 'snake';
-  fields[17][19] = 'food';
+  fields[initialPosition.y][initialPosition.x] = 'snake';
 
   return fields;
 };
