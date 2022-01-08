@@ -1,13 +1,16 @@
 import React from 'react';
+import { GameStatusType } from '../App';
 
 type Props = {
+  status: GameStatusType;
   onStart: () => void; // VoidFunction でも可
+  onRestart: () => void;
 };
 
-const Button: React.FC<Props> = ({ onStart }) => {
+const Button: React.FC<Props> = ({ status, onStart, onRestart }) => {
   return (
     <div className="button">
-      <button onClick={onStart}>start</button>
+      {status === 'gameover' ? <button onClick={onRestart}>gameover</button> : <button onClick={onStart}>start</button>}
     </div>
   );
 };

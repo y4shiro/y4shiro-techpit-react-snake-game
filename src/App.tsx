@@ -11,7 +11,7 @@ type PositionType = {
   y: number;
 };
 
-type GameStatusType = 'init' | 'playing' | 'suspended' | 'gameover';
+export type GameStatusType = 'init' | 'playing' | 'suspended' | 'gameover';
 
 const initialPosition: PositionType = { x: 17, y: 17 };
 const initialValues = initFields(35, initialPosition);
@@ -26,15 +26,25 @@ const unsubscribe = () => {
   clearInterval(timer);
 };
 
+// スネークの衝突判定、今回は壁のみ
+const isCollision = (fieldSize: number, position: PositionType) => {
+  if (position.y < 0 || position.x < 0) {
+    return true;
+  }
+  if (position.y > fieldSize - 1 || position.x > fieldSize - 1) {
+    return true;
+  }
+
+  return false;
+};
+
 const App: React.FC = () => {
   const [fields, setFields] = useState(initialValues);
-  const [position, setPosition] = useState<PositionType>();
+  const [position, setPosition] = useState<PositionType>(initialPosition);
   const [status, setStatus] = useState<GameStatusType>('init');
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    setPosition(initialPosition);
-
     // ゲームの中の時間を管理する
     timer = setInterval(() => {
       setTick((tick) => tick + 1);
@@ -47,20 +57,36 @@ const App: React.FC = () => {
     if (!position || status != 'playing') {
       return;
     }
-    goUp();
+
+    const canContineu = goUp();
+    if (!canContineu) {
+      setStatus('gameover');
+    }
   }, [tick]);
 
   const onStart = () => setStatus('playing');
 
+  const onRestart = () => {
+    timer = setInterval(() => {
+      setTick((tick) => tick + 1);
+    }, defaultInterval);
+    setStatus('init');
+    setPosition(initialPosition);
+    setFields(initFields(35, initialPosition));
+  };
+
   const goUp = () => {
-    if (position) {
-      const { x, y } = position;
-      const nextY = Math.max(y - 1, 0);
-      fields[y][x] = '';
-      fields[nextY][x] = 'snake';
-      setPosition({ x, y: nextY });
-      setFields(fields);
+    const { x, y } = position;
+    const newPosition = { x, y: y - 1 };
+    if (isCollision(fields.length, newPosition)) {
+      unsubscribe();
+      return false;
     }
+    fields[y][x] = '';
+    fields[newPosition.y][x] = 'snake';
+    setPosition(newPosition);
+    setFields(fields);
+    return true;
   };
 
   return (
@@ -75,7 +101,7 @@ const App: React.FC = () => {
         <Field fields={fields} />
       </main>
       <footer className="footer">
-        <Button onStart={onStart} />
+        <Button status={status} onStart={onStart} onRestart={onRestart} />
         <ManipulationPanel />
       </footer>
     </div>
