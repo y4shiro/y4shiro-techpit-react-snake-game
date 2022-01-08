@@ -4,6 +4,9 @@ import Navigation from './components/Navigation';
 import Field from './components/Field';
 import Button from './components/Button';
 import ManipulationPanel from './components/ManipulationPanel';
+import { initFields } from './utils';
+
+const fields = initFields(35);
 
 const App: React.FC = () => {
   return (
@@ -15,7 +18,7 @@ const App: React.FC = () => {
         <Navigation />
       </header>
       <main className="main">
-        <Field />
+        <Field fields={fields} />
       </main>
       <footer className="footer">
         <Button />
