@@ -11,6 +11,8 @@ type PositionType = {
   y: number;
 };
 
+type GameStatusType = 'init' | 'playing' | 'suspended' | 'gameover';
+
 const initialPosition: PositionType = { x: 17, y: 17 };
 const initialValues = initFields(35, initialPosition);
 const defaultInterval = 100;
@@ -27,6 +29,7 @@ const unsubscribe = () => {
 const App: React.FC = () => {
   const [fields, setFields] = useState(initialValues);
   const [position, setPosition] = useState<PositionType>();
+  const [status, setStatus] = useState<GameStatusType>('init');
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -41,11 +44,13 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!position) {
+    if (!position || status != 'playing') {
       return;
     }
     goUp();
   }, [tick]);
+
+  const onStart = () => setStatus('playing');
 
   const goUp = () => {
     if (position) {
@@ -70,7 +75,7 @@ const App: React.FC = () => {
         <Field fields={fields} />
       </main>
       <footer className="footer">
-        <Button />
+        <Button onStart={onStart} />
         <ManipulationPanel />
       </footer>
     </div>

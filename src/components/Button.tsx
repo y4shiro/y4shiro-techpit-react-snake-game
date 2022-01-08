@@ -1,9 +1,13 @@
 import React from 'react';
 
-const Button: React.FC = () => {
+type Props = {
+  onStart: () => void; // VoidFunction でも可
+};
+
+const Button: React.FC<Props> = ({ onStart }) => {
   return (
     <div className="button">
-      <button>start</button>
+      <button onClick={onStart}>start</button>
     </div>
   );
 };
