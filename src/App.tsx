@@ -12,6 +12,21 @@ type PositionType = {
 };
 
 export type GameStatusType = 'init' | 'playing' | 'suspended' | 'gameover';
+export type DirectionType = 'up' | 'right' | 'left' | 'down';
+
+const OppositeDirection = {
+  up: 'down',
+  right: 'left',
+  left: 'right',
+  down: 'up',
+} as const;
+
+const Delta = {
+  up: { x: 0, y: -1 },
+  right: { x: 1, y: 0 },
+  left: { x: -1, y: 0 },
+  down: { x: 0, y: 1 },
+} as const;
 
 const initialPosition: PositionType = { x: 17, y: 17 };
 const initialValues = initFields(35, initialPosition);
@@ -42,6 +57,7 @@ const App: React.FC = () => {
   const [fields, setFields] = useState(initialValues);
   const [position, setPosition] = useState<PositionType>(initialPosition);
   const [status, setStatus] = useState<GameStatusType>('init');
+  const [direction, setDirection] = useState<DirectionType>('up');
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -58,7 +74,7 @@ const App: React.FC = () => {
       return;
     }
 
-    const canContineu = goUp();
+    const canContineu = handleMoving();
     if (!canContineu) {
       setStatus('gameover');
     }
@@ -72,21 +88,38 @@ const App: React.FC = () => {
     }, defaultInterval);
     setStatus('init');
     setPosition(initialPosition);
+    setDirection('up');
     setFields(initFields(35, initialPosition));
   };
 
-  const goUp = () => {
+  const handleMoving = () => {
     const { x, y } = position;
-    const newPosition = { x, y: y - 1 };
+    const delta = Delta[direction];
+    const newPosition = {
+      x: x + delta.x,
+      y: y + delta.y,
+    };
+
     if (isCollision(fields.length, newPosition)) {
       unsubscribe();
       return false;
     }
+
     fields[y][x] = '';
-    fields[newPosition.y][x] = 'snake';
+    fields[newPosition.y][newPosition.x] = 'snake';
     setPosition(newPosition);
     setFields(fields);
     return true;
+  };
+
+  const onChangeDirection = (newDirection: DirectionType): DirectionType | undefined => {
+    if (status !== 'playing') {
+      return direction;
+    }
+    if (OppositeDirection[direction] === newDirection) {
+      return;
+    }
+    setDirection(newDirection);
   };
 
   return (
@@ -102,7 +135,7 @@ const App: React.FC = () => {
       </main>
       <footer className="footer">
         <Button status={status} onStart={onStart} onRestart={onRestart} />
-        <ManipulationPanel />
+        <ManipulationPanel onChange={onChangeDirection} />
       </footer>
     </div>
   );
